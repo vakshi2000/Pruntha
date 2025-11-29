@@ -1,42 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>wish your happy birthday pruntha</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap"
-      rel="stylesheet" />
-    <link rel="stylesheet" href="love letter 2.css" />
-  </head>
-  <body>
-    
-    <div class="envlope-wrapper">
-      <div id="envelope" class="close">
-        <div class="front flap"></div>
-        <div class="front pocket"></div>
-        <div class="letter">
-          <div class="words line1">To: Pruntha</div>
-          <div class="words line2">Dear Crush, 🎉 Happy 25th Birthday!</div>
-          <div class="words line3">Shine brighter than ever, birthday star!</div>
-          <div class="words line4">Happy quarter-century, little cutie!</div>
-          <div class="words line5">❤️❤️</div>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Report System</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+
+        <header>
+            <h1>Item Report System</h1>
+            <p>Manage your store inventory efficiently</p>
+        </header>
+
+        <div class="card input-section">
+            <div class="form-group">
+                <label for="categorySelect">Category</label>
+                <div class="input-group">
+                    <select id="categorySelect" autofocus>
+                        <option value="Uncategorized">Uncategorized</option>
+                    </select>
+                    <button id="addCategoryBtn" class="btn-icon" title="Add New Category">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="barcodeInput">Barcode Number</label>
+                <div class="input-group">
+                    <input type="text" id="barcodeInput" placeholder="Enter or scan barcode">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="descriptionInput">Description</label>
+                <input type="text" id="descriptionInput" placeholder="Item description">
+            </div>
+
+            <div class="form-group">
+                <label for="priceInput">Price</label>
+                <input type="number" id="priceInput" placeholder="0.00" step="0.01">
+            </div>
+
+            <button id="addItemBtn" class="btn-primary">Add Item</button>
         </div>
-        <div class="hearts">
-          <div class="heart a1"></div>
-          <div class="heart a2"></div>
-          <div class="heart a3"></div>
+
+        <div class="card table-section">
+            <div class="table-header">
+                <h2>Inventory Report</h2>
+            </div>
+            <div class="table-header">
+                <div class="filter-group">
+                    <select id="categoryFilter">
+                        <option value="all">All Categories</option>
+                    </select>
+                </div>
+
+                <div class="actions">
+                    <input type="text" id="searchInput" placeholder="Search items...">
+                    <button id="sortBarcodeBtn" class="btn-secondary">Sort by Barcode</button>
+                    <button id="downloadBtn" class="btn-secondary">Download Excel</button>
+                    <button id="historyBtn" class="btn-secondary">View History</button>
+                    <button id="clearAllBtn" class="btn-secondary">Clear All</button>
+                </div>
+            </div>
+            <div class="table-header">
+            <div class="actions">
+                <input type="file" id="excelUpload" accept=".xlsx, .xls" />
+                <button onclick="uploadExcel()" class="btn-secondary">Upload Items</button>
+            </div>
+            </div>
+            <div class="table-wrapper">
+                <table id="itemTable">
+                    <thead>
+                        <tr>
+                            <th>Barcode</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Actual Stock</th> <!-- NEW COLUMN -->
+                            <th>Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+                <div id="emptyState" class="empty-state">
+                    <p>No items added yet. Enter a barcode to begin.</p>
+                </div>
+            </div>
+
+            <div class="table-footer">
+                <span>Total Items: <strong id="totalItems">0</strong></span>
+                <span>Grand Total: <strong id="grandTotal">LKR 0.00</strong></span>
+            </div>
         </div>
-      </div>
-    </div>
-    <div class="reset">
-      <button id="open">Open</button>
-      <button id="reset">Close</button>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="love letter 2.js"></script>
-  </body>
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Item</h2>
+                <span class="close-edit-modal">&times;</span>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editCategory">Category</label>
+                    <select id="editCategory"></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="editDescription">Description</label>
+                    <input type="text" id="editDescription">
+                </div>
+
+                <div class="form-group">
+                    <label for="editPrice">Price (LKR)</label>
+                    <input type="number" id="editPrice" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label for="editQuantity">Quantity</label>
+                    <input type="number" id="editQuantity">
+                </div>
+
+                <div class="form-group">
+                    <label for="editActual">Actual Stock</label>
+                    <input type="number" id="editActual">
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button id="cancelEditBtn" class="btn-secondary">Cancel</button>
+                <button id="saveEditBtn" class="btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Activity History</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <ul id="historyList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Camera Scanner Modal -->
+    <div id="scannerModal" class="modal">
+        <div class="modal-content scanner-box">
+            <div class="modal-header">
+                <h2>Scan Barcode</h2>
+                <span class="close-scanner">&times;</span>
+            </div>
+            <div class="modal-body">
+                <video id="cameraPreview" width="100%" autoplay></video>
+            </div>
+        </div>
+    </div>
+
+    <!-- Libraries -->
+    <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
+</body>
+
 </html>
 
